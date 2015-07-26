@@ -131,8 +131,6 @@ public class Percolation : MonoBehaviour
 		Vector3 oldXZ;
 		Vector3 newXZ;
 
-		report.text = "Opening new spaces...";
-
 		while (numOpenBlocks < totalNumOpenSpaces)
 		{
 			newUnopenedIndex = getUnopenIndex();
@@ -158,6 +156,8 @@ public class Percolation : MonoBehaviour
 					}
 				}
 			}
+
+			report.text = "Opening new spaces... " + numOpenBlocks + " open blocks (" + (float)numOpenBlocks / (float)gridSize * 100 + "% open).";
 			
 			//check all blocks for percolation
 			for (int i = 0; i < gridSize; i++)
@@ -178,7 +178,7 @@ public class Percolation : MonoBehaviour
 
 			if (percolates)
 			{
-				report.text = "Percolated at " + numOpenBlocks + " blocks (" + (float)numOpenBlocks / (float)gridSize * 100 + "%) open.";
+				report.text = "Percolated at " + numOpenBlocks + " open blocks (" + (float)numOpenBlocks / (float)gridSize * 100 + "% open).";
 				numOpenBlocks = totalNumOpenSpaces;
 			}
 
