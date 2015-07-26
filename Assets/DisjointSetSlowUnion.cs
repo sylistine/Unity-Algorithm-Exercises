@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class QuickFindGrid : ScriptableObject
+public class DisjointSetSlowUnion : ScriptableObject
 {
 	int[] id;
 
@@ -13,12 +13,10 @@ public class QuickFindGrid : ScriptableObject
 		}
 	}
 
-	public QuickFindGrid (int N)
+	public DisjointSetSlowUnion (int N)
 	{
-		int len = (int)Mathf.Pow (N, 2);
-
-		id = new int[len];
-		for(int i = 0; i < len; i++)
+		id = new int[N];
+		for(int i = 0; i < N; i++)
 		{
 			id[i] = i;
 		}
@@ -36,7 +34,7 @@ public class QuickFindGrid : ScriptableObject
 		}
 	}
 
-	public bool IsConnected (int a, int b)
+	public bool Find (int a, int b)
 	{
 		return id[a] == id[b];
 	}

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class QuickUnionGrid : ScriptableObject
+public class DisjointSetLazyUnion : ScriptableObject
 {
 	int[] id;
 
@@ -16,12 +16,10 @@ public class QuickUnionGrid : ScriptableObject
 	/*
 	 * Constructor
 	 */
-	public QuickUnionGrid(int N)
+	public DisjointSetLazyUnion(int N)
 	{
-		int len = (int)Mathf.Pow(N, 2f);
-
-		id = new int[len];
-		for (int i = 0; i < len; i++) id[i] = i;
+		id = new int[N];
+		for (int i = 0; i < N; i++) id[i] = i;
 	}
 
 	private int Root (int i)
@@ -37,7 +35,7 @@ public class QuickUnionGrid : ScriptableObject
 		id[i] = j;
 	}
 
-	public bool IsConnected (int a, int b)
+	public bool Find (int a, int b)
 	{
 		return Root (a) == Root (b);
 	}
