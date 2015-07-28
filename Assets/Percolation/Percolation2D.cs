@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class Percolation : MonoBehaviour
+public class Percolation2D : MonoBehaviour
 {
 	public float updateSpeed
 	{
@@ -18,6 +18,10 @@ public class Percolation : MonoBehaviour
 	[Range (0, 1)]
 	public float percentOpen;
 
+	public Color closedBlockColor;
+	public Color openBlockColor;
+	public Color percolatedBlockColor;
+
 	Vector3[] gridDir =
 	{
 		new Vector3(0, 0, 1),
@@ -27,6 +31,8 @@ public class Percolation : MonoBehaviour
 	};
 
 	int gridSize;
+
+	float blockSpacing = 1.01f;
 
 	float _updateSpeed;
 	
@@ -44,9 +50,13 @@ public class Percolation : MonoBehaviour
 
 	void Start ()
 	{
-		gridPosition = this.transform.position;
-
 		gridSize = gridSqrtSize * gridSqrtSize;
+		
+		gridPosition = this.transform.position;
+		float gridPositionAdjustment = (float)gridSqrtSize * blockSpacing / 2f;
+		Debug.Log (gridPositionAdjustment);
+		gridPosition.x -= gridPositionAdjustment;
+		gridPosition.z -= gridPositionAdjustment;
 
 		openState = new int[gridSize];
 		visualizerBlock = new GameObject[gridSize];
@@ -63,7 +73,7 @@ public class Percolation : MonoBehaviour
 	
 	Vector3 I2XZ (int index)
 	{
-		float x, z;
+		float x, y, z;
 		
 		x = index % gridSqrtSize;
 		z = index / gridSqrtSize;
@@ -100,8 +110,8 @@ public class Percolation : MonoBehaviour
 		for (int i = blocksBuilt; i < gridSize; i++)
 		{
 			cubePos = I2XZ (i);
-			cubePos.x = cubePos.x*1.1f + gridPosition.x;
-			cubePos.z = cubePos.z*1.1f + gridPosition.z;
+			cubePos.x = cubePos.x*blockSpacing + gridPosition.x;
+			cubePos.z = cubePos.z*blockSpacing + gridPosition.z;
 
 			//record change
 			openState[i] = 1;
@@ -139,7 +149,7 @@ public class Percolation : MonoBehaviour
 			openState[newUnopenedIndex] = 0;
 
 			//visualize it
-			visualizerBlock[newUnopenedIndex].GetComponent<Renderer>().material.color = new Color(0.75f, 0.75f, 0.75f, 0.25f);
+			visualizerBlock[newUnopenedIndex].GetComponent<Renderer>().material.color = openBlockColor;
 
 			//update the union grid
 			for (int i = 0; i < 4; i++)
@@ -166,7 +176,7 @@ public class Percolation : MonoBehaviour
 				{
 					if (disjointSet.Find(i, gridSize-1))
 					{
-						visualizerBlock[i].GetComponent<Renderer>().material.color = new Color (0.25f, 0.25f, 1f, 0.5f);
+						visualizerBlock[i].GetComponent<Renderer>().material.color = percolatedBlockColor;
 
 						if (i < gridSqrtSize)
 						{

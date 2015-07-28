@@ -1,15 +1,15 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class SpeedSlider : MonoBehaviour
 {
-	Percolation _percolation;
+	Percolation2D _percolation;
 
-	public Percolation percolation
+	public Percolation2D percolation
 	{
 		get
 		{
-			if(_percolation == null) _percolation = GameObject.Find ("Percolator(Clone)").GetComponent<Percolation>();
+			if(_percolation == null) _percolation = GameObject.Find ("Percolator(Clone)").GetComponent<Percolation2D>();
 			return _percolation;
 		}
 	}

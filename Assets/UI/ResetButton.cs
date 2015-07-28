@@ -18,6 +18,6 @@ public class ResetButton : MonoBehaviour
 	{
 		buttonText.text = "Reset";
 		GameObject.Destroy (GameObject.Find ("Percolator(Clone)"));
-		Instantiate(percolator);
+		Instantiate(percolator, new Vector3(250, 0, 250), Quaternion.identity);
 	}
 }

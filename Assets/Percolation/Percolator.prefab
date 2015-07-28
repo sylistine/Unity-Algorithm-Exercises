@@ -23,7 +23,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 125576}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 250, y: 0, z: 250}
+  m_LocalPosition: {x: 228.82811, y: 0, z: 224.169601}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -36,19 +36,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 125576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f5549e953d096d448403c35e4495343, type: 3}
+  m_Script: {fileID: 11500000, guid: 0120c797635965544bc5dd7bfbd35ad4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cube: {fileID: 181428, guid: 8befb30cc70a1334c922c4b517956b1a, type: 2}
   gridSqrtSize: 25
   percentOpen: .75
+  closedBlockColor: {r: 0, g: 0, b: 0, a: .494117647}
+  openBlockColor: {r: 1, g: 0, b: 0, a: .498039216}
+  percolatedBlockColor: {r: 0, g: 0, b: 1, a: .498039216}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: gridCbrtSize
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: percentOpen
+      value: .75
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 125576}

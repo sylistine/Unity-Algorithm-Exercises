@@ -32,7 +32,11 @@ public class DisjointSet : ScriptableObject
 	
 	private int Root (int i)
 	{
-		while (id[i] != i) i = id[i];
+		while (id[i] != i)
+		{
+			id[i] = id[id[i]];
+			i = id[i];
+		}
 		return i;
 	}
 	
