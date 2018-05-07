@@ -5,10 +5,10 @@ GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Component:
-  - 4: {fileID: 489252}
-  - 114: {fileID: 11493426}
+  - component: {fileID: 489252}
+  - component: {fileID: 11493426}
   m_Layer: 0
   m_Name: Percolator
   m_TagString: Untagged
@@ -23,11 +23,12 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 125576}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 228.82811, y: 0, z: 224.169601}
+  m_LocalPosition: {x: 228.82811, y: 0, z: 224.1696}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &11493426
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -40,11 +41,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cube: {fileID: 181428, guid: 8befb30cc70a1334c922c4b517956b1a, type: 2}
-  gridSqrtSize: 25
-  percentOpen: .75
-  closedBlockColor: {r: 0, g: 0, b: 0, a: .494117647}
-  openBlockColor: {r: 1, g: 0, b: 0, a: .498039216}
-  percolatedBlockColor: {r: 0, g: 0, b: 1, a: .498039216}
+  gridLength: 25
+  closedBlockColor: {r: 0, g: 0, b: 0, a: 0.49411765}
+  openBlockColor: {r: 1, g: 0, b: 0, a: 0.49803922}
+  percolatingColor: {r: 0, g: 1, b: 0, a: 0.49803922}
+  percolatedColor: {r: 0, g: 0, b: 1, a: 0.49803922}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

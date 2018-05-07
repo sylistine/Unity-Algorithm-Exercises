@@ -10,116 +10,71 @@ public class Percolation2D : MonoBehaviour
 		set { _updateSpeed = value; }
 	}
 	
-	public GameObject cube;
+	[SerializeField]
+	private GameObject cube;
 	
-	public int gridSqrtSize;
-	
-	// We want to use this to test that magic 0.59~ phase change value
-	[Range (0, 1)]
-	public float percentOpen;
+	[SerializeField]
+	private int gridLength;
 
-	public Color closedBlockColor;
-	public Color openBlockColor;
-	public Color percolatedBlockColor;
+	[SerializeField]
+	private Color closedBlockColor;
+	[SerializeField]
+	private Color openBlockColor;
+	[SerializeField]
+	private Color percolatingColor;
+	[SerializeField]
+	private Color percolatedColor;
 
-	Vector3[] gridDir =
-	{
-		new Vector3(0, 0, 1),
-		new Vector3(0, 0, -1),
-		new Vector3(1, 0, 0),
-		new Vector3(-1, 0, 0)
-	};
+	private int gridSize;
 
-	int gridSize;
+	private float blockSpacing = 1.01f;
 
-	float blockSpacing = 1.01f;
+	private float _updateSpeed;
 
-	float _updateSpeed;
-	
-	Vector3 gridPosition;
+	private Vector3 gridPosition;
 
-	int[] openState;
+	private GameObject[] visualizerBlock;
+	private bool[] isOpen;
 
-	GameObject[] visualizerBlock;
+	private DisjointSet disjointSet;
+	private bool percolates = false;
 
-	DisjointSet disjointSet;
-
-	bool percolates = false;
-
-	Text report;
+	private Text report;
 
 	void Start ()
 	{
-		gridSize = gridSqrtSize * gridSqrtSize;
-		
+		gridSize = gridLength * gridLength;
+
+		report = GameObject.Find("Report").GetComponent<Text>();
+
 		gridPosition = this.transform.position;
-		float gridPositionAdjustment = (float)gridSqrtSize * blockSpacing / 2f;
-		Debug.Log (gridPositionAdjustment);
+		float gridPositionAdjustment = (float)gridLength * blockSpacing / 2f;
+		Debug.Log( gridPositionAdjustment );
 		gridPosition.x -= gridPositionAdjustment;
 		gridPosition.z -= gridPositionAdjustment;
 
-		openState = new int[gridSize];
+		isOpen = new bool[gridSize];
 		visualizerBlock = new GameObject[gridSize];
-		disjointSet = new DisjointSet (gridSize);
-		StartCoroutine (BuildGrid ());
-
-		// join all 'top' indices to check percolation later
-		int topRowFirstIndex = (int)(gridSize / gridSqrtSize) * (gridSqrtSize-1);
-		for(int i = topRowFirstIndex; i < gridSize-1; i++)
-		{
-			disjointSet.Join (i, gridSize-1);
-		}
-	}
-	
-	Vector3 I2XZ (int index)
-	{
-		float x, y, z;
-		
-		x = index % gridSqrtSize;
-		z = index / gridSqrtSize;
-
-		return new Vector3 (x, 2, z);
+		disjointSet = new DisjointSet( gridSize );
+		StartCoroutine( BuildGrid( ) );
 	}
 
-	int XZ2I (Vector3 xz)
-	{
-		return (int)(xz.z * gridSqrtSize + xz.x);
-	}
-	
-	int getUnopenIndex ()
-	{
-		int newIndex = -1;
-		bool passed = false;
-		
-		while(!passed)
-		{
-			newIndex = (int)Random.Range(0, (gridSize));
-			if (openState[newIndex] == 1) passed = true;
-		}
-		return newIndex;
-	}
-
-	IEnumerator BuildGrid ()
+	private IEnumerator BuildGrid()
 	{
 		int blocksBuilt = 0;
 		Vector3 cubePos;
-		
-		report = GameObject.Find ("Report").GetComponent<Text> ();
+
 		report.text = "Building new percolator.";
 
-		for (int i = blocksBuilt; i < gridSize; i++)
+		for( int i = blocksBuilt; i < gridSize; i++ )
 		{
-			cubePos = I2XZ (i);
-			cubePos.x = cubePos.x*blockSpacing + gridPosition.x;
-			cubePos.z = cubePos.z*blockSpacing + gridPosition.z;
-
-			//record change
-			openState[i] = 1;
+			cubePos = Idx2WorldPos (i);
+			cubePos.x = cubePos.x * blockSpacing + gridPosition.x;
+			cubePos.z = cubePos.z * blockSpacing + gridPosition.z;
 
 			//visualize the grid
 			visualizerBlock[i] = (GameObject)Instantiate (cube, cubePos, Quaternion.Euler(0,0,0));
 			visualizerBlock[i].transform.parent = this.transform;
-			
 			
 			if (Time.timeScale == 0)
 				yield return new WaitForFixedUpdate();
@@ -132,72 +87,138 @@ public class Percolation2D : MonoBehaviour
 		StartCoroutine (OpenSpaces());
 	}
 
-	IEnumerator OpenSpaces ()
+	private IEnumerator OpenSpaces ()
 	{
-		int totalNumOpenSpaces = (int)(gridSize * percentOpen);
 		int numOpenBlocks = 0;
-		int newUnopenedIndex;
-		int connectingIndex;
-		Vector3 oldXZ;
-		Vector3 newXZ;
 
-		while (numOpenBlocks < totalNumOpenSpaces)
+		while (!percolates)
 		{
-			newUnopenedIndex = getUnopenIndex();
-
-			//record change
-			openState[newUnopenedIndex] = 0;
-
-			//visualize it
-			visualizerBlock[newUnopenedIndex].GetComponent<Renderer>().material.color = openBlockColor;
-
-			//update the union grid
-			for (int i = 0; i < 4; i++)
-			{
-				oldXZ = I2XZ (newUnopenedIndex);
-				newXZ = oldXZ + gridDir[i];
-
-				if(newXZ.x >= 0 && newXZ.x < gridSqrtSize && newXZ.z >= 0 && newXZ.z < gridSqrtSize)
-				{
-					connectingIndex = XZ2I(newXZ);
-					if (openState[connectingIndex] == 0)
-					{
-						disjointSet.Join (newUnopenedIndex, connectingIndex);
-					}
-				}
-			}
-
-			report.text = "Opening new spaces... " + numOpenBlocks + " open blocks (" + (float)numOpenBlocks / (float)gridSize * 100 + "% open).";
+			numOpenBlocks++;
+			report.text = string.Format("Opening new spaces... {0} open blocks ({1}% open).", numOpenBlocks, 100f * numOpenBlocks / gridSize);
+			OpenNewBlock();
 			
-			//check all blocks for percolation
-			for (int i = 0; i < gridSize; i++)
+			// Check all blocks for percolation.
+			// Can this be optimized? We know in this loop that only two possible distjoint sets may have been joined...
+			for (var i = 0; i < gridSize; i++)
 			{
-				if (openState[i] == 0)
-				{
-					if (disjointSet.Find(i, gridSize-1))
-					{
-						visualizerBlock[i].GetComponent<Renderer>().material.color = percolatedBlockColor;
+				if (!isOpen[i] || !ConnectedToTop(i)) continue;
 
-						if (i < gridSqrtSize)
-						{
-							percolates = true;
-						}
-					}
-				}
+				// This block is connected to the top.
+				visualizerBlock[i].GetComponent<Renderer>().material.color = percolatingColor;
+
+				if (i >= gridLength) continue;
+
+				// This block is located on the bottom: we've percolated.
+				percolates = true;
 			}
 
 			if (percolates)
 			{
-				report.text = "Percolated at " + numOpenBlocks + " open blocks (" + (float)numOpenBlocks / (float)gridSize * 100 + "% open).";
-				numOpenBlocks = totalNumOpenSpaces;
-			}
+				for (var i = 0; i < gridSize; i++)
+				{
+					if (!isOpen[i] ||
+					    !ConnectedToTop(i) ||
+					    !ConnectedToBottom(i))
+						continue;
 
-			numOpenBlocks++;
+					visualizerBlock[i].GetComponent<Renderer>().material.color = percolatedColor;
+				}
+			}
 
 			if (Time.timeScale == 0)
 				yield return new WaitForFixedUpdate();
 			else
-				yield return new WaitForSeconds (_updateSpeed);
+				yield return new WaitForSeconds(_updateSpeed);
 		}
+
+		report.text = "Percolated at " + numOpenBlocks + " open blocks (" + (float)numOpenBlocks / (float)gridSize * 100 + "% open).";
+	}
+
+	private void OpenNewBlock()
+	{
+		// Open a new closed block.
+		var newOpenBoxIdx = GetRandomClosedBox();
+		isOpen[newOpenBoxIdx] = true;
+
+		// Visualize it.
+		visualizerBlock[newOpenBoxIdx].GetComponent<Renderer>().material.color = openBlockColor;
+
+		// Join open neighbors.
+		JoinNeighbors(newOpenBoxIdx);
+	}
+
+	private Vector3 Idx2WorldPos(int idx)
+	{
+		float x = idx % gridLength;
+		float z = idx / gridLength;
+
+		return new Vector3(x, 2, z);
+	}
+
+	private int GetRandomClosedBox()
+	{
+		int newIndex = -1;
+		bool passed = false;
+
+		while (!passed)
+		{
+			newIndex = (int)Random.Range(0, (gridSize));
+			if (isOpen[newIndex] == false) passed = true;
+		}
+		return newIndex;
+	}
+
+	private void JoinNeighbors(int idx)
+	{
+		if (idx < gridSize - gridLength)
+		{
+			TryJoin(idx, idx + gridLength);
+		}
+		if (idx >= gridLength)
+		{
+			TryJoin(idx, idx - gridLength);
+		}
+		if (idx % gridLength > 0)
+		{
+			TryJoin(idx, idx - 1);
+		}
+		if (idx % gridLength < gridLength - 1)
+		{
+			TryJoin(idx, idx + 1);
+		}
+	}
+
+	private void TryJoin(int a, int b)
+	{
+		if (isOpen[b] == true)
+		{
+			disjointSet.Join(a, b);
+		}
+	}
+
+	private bool ConnectedToTop(int idx)
+	{
+		for (int i = gridSize - gridLength; i < gridSize; ++i)
+		{
+			if (isOpen[i] && disjointSet.AreConnected(idx, i))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private bool ConnectedToBottom(int idx)
+	{
+		for (int i = 0; i < gridLength; ++i)
+		{
+			if (isOpen[i] && disjointSet.AreConnected(idx, i))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

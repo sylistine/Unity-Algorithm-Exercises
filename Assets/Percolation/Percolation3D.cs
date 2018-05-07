@@ -173,7 +173,7 @@ public class Percolation3D : MonoBehaviour
 			{
 				if (openState[i] == 0)
 				{
-					if (disjointSet.Find(i, gridSize-1))
+					if (disjointSet.AreConnected(i, gridSize-1))
 					{
 						visualizerBlock[i].GetComponent<Renderer>().material.color = percolatedBlockColor;
 						
